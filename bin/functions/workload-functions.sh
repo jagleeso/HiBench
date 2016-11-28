@@ -16,6 +16,9 @@
 
 set -u
 
+# Don't remove output files for experiment (useful to re-running the same thing repeatedly.)
+export HIBENCH_SKIP_RM='yes'
+
 export HIBENCH_PRINTFULLLOG=0
 this="${BASH_SOURCE-$0}"
 workload_func_bin=$(cd -P -- "$(dirname -- "$this")" && pwd -P)
@@ -109,6 +112,10 @@ function gen_report() {		# dump the result to report file
 }
 
 function rmr-hdfs(){		# rm -r for hdfs
+    if [ "$HIBENCH_SKIP_RM" = 'yes' ]; then
+        echo -e "${BCyan}SKIPPING hdfs rm -r (HIBENCH_SKIP_RM): ${Color_Off}" > /dev/stderr
+        return
+    fi
     assert $1 "dir parameter missing"
     RMDIR_CMD="fs -rm -r -skipTrash"
     local CMD="$HADOOP_EXECUTABLE --config $HADOOP_CONF_DIR $RMDIR_CMD $1"
